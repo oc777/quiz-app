@@ -1,4 +1,8 @@
-function ajaxPost(url, callback, data) {
+"use strict";
+
+function Ajax() {}
+
+Ajax.prototype.aPost = function(url, callback, data) {
     try {
         var request = new XMLHttpRequest();
         request.open("POST", url, true);
@@ -12,10 +16,9 @@ function ajaxPost(url, callback, data) {
     } catch (error) {
         console.log("Whoops!");
     }
-}
+};
 
-
-function ajaxGet(url, callback) {
+Ajax.prototype.aGet = function(url, callback) {
     try {
         var request = new XMLHttpRequest();
         request.open("GET", url, true);
@@ -27,9 +30,8 @@ function ajaxGet(url, callback) {
     } catch (error) {
         console.log("Whoops!");
     }
-}
+};
 
 
 
-//request.readyState === 4 && callback && callback(x.responseText, x);
-//var myArr = JSON.parse(request.responseText);
+module.exports = Ajax;

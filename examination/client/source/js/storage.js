@@ -1,3 +1,5 @@
+"use strict";
+
 function storeNickname() {
 
     var submit = document.getElementById("nicknameSubmit");
