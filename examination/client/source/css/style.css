@@ -17,3 +17,5 @@ header {height: 15%; background-color: darkgray; border-radius: 10px; padding: 2
 h1, h2, h3 {color: darkblue}
 
 footer { background-color: darkgray; border-radius: 10px; padding: 10px; margin-top: 2% }
+
+#input span {margin: 0 10px; }

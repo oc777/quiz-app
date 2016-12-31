@@ -21,26 +21,22 @@ var submit = document.getElementById("submit");
 var input = document.getElementById("input");
 
 var url = "http://vhost3.lnu.se:20080/question/1";
-var options = 0;
+var options = false;
 var answer;
+var inputField;
 
 
 function Quiz() {
     box.querySelector("h3").innerHTML = "Question:";
-
     submit.setAttribute("value", "Submit answer");
-
-
     submit.addEventListener("click", this.sendAnswer, true);
     //this.getQuestion();
+    input.firstChild.remove();
 }
 
 
 Quiz.prototype.getQuestion = function() {
-
-    input.firstChild.remove();
-
-    console.log("get question: " + url);
+    //console.log("get question: " + url);
 
     var request = new XMLHttpRequest();
 
@@ -52,6 +48,7 @@ Quiz.prototype.getQuestion = function() {
 
             if (response.nextURL !== undefined) {
                 url = response.nextURL;
+                /*
                 if (response.alternatives !== undefined) {
                     //options = response.alternatives.length;
                     options = Object.keys(response.alternatives).length;
@@ -59,6 +56,7 @@ Quiz.prototype.getQuestion = function() {
                 } else {
                     options = 0;
                 }
+                */
             } else {
                 console.log("You won!");    //TODO gameover();
             }
@@ -68,24 +66,10 @@ Quiz.prototype.getQuestion = function() {
             document.querySelector("#status").textContent = "";
 
 
-            input.innerHTML = "";
 
-            while(input.firstChild) {
-                input.removeChild(input.firstChild);
-            }
+            Quiz.prototype.clearInputForm();
+            Quiz.prototype.createInputForm(response);
 
-            if (options === 0) {
-                //input.replaceChild(answerNinput, input.firstChild);
-                input.appendChild(answerNinput);
-            } else {
-
-                var i;
-                for (i = 0; i < options; i++) {
-                    console.log("loop");
-                    input.appendChild(answerRinput);
-                }
-
-            }
         }
         else {
             document.querySelector("#status").textContent = "Waiting...";
@@ -106,7 +90,11 @@ Quiz.prototype.sendAnswer = function() {
     var request = new XMLHttpRequest();
 
 
-    answer = answerNinput.value;
+    if(options) {
+        Quiz.prototype.getAlt();
+    } else {
+        answer = inputField.value;
+    }
 
     request.onreadystatechange = function () {
         if (request.readyState === 4 ) {
@@ -146,31 +134,60 @@ Quiz.prototype.sendAnswer = function() {
 
 };
 
-/*
- try {
- var request = new XMLHttpRequest();
- request.open("POST", url, true);
- request.setRequestHeader("Content-type", "application/json");
- request.onreadystatechange = function () {
- if (request.readyState === 4 && request.status === 200) {
- callback(request);
- }
- };
- request.send(data);
- } catch (error) {
- console.log("Whoops!");
- }
- */
+Quiz.prototype.createInputForm = function(response) {
+
+    if (response.alternatives !== undefined) {
+        /*
+        var options = Object.keys(response.alternatives).length;
+        var i;
+        for (i = 0; i < options; ++i) {
+            var inputRadio = document.createElement("input");
+            inputRadio.setAttribute("type", "radio");
+            inputRadio.setAttribute("id", "alt"+i);
+            input.appendChild(inputRadio);
+        }
+        */
+        options = true;
+        Object.keys(response.alternatives).forEach(function(key) {
+
+            var inputRadio = document.createElement("input");
+            inputRadio.setAttribute("type", "radio");
+            inputRadio.setAttribute("value", key);
+            inputRadio.setAttribute("class", "key");
+            input.appendChild(document.createElement("span"));
+            input.appendChild(inputRadio);
+            var alt = document.createTextNode(response.alternatives[key]);
+            input.appendChild(alt);
+            input.appendChild(document.createElement("span"));
+        });
+
+    } else {
+        options = false;
+        inputField = document.createElement("input");
+        inputField.setAttribute("type", "number");
+        input.appendChild(inputField);
+    }
+};
 
 
 
+Quiz.prototype.clearInputForm = function() {
+    while(input.firstChild) {
+        input.removeChild(input.firstChild);
+    }
+};
 
+Quiz.prototype.getAlt = function() {
+    var alts = document.querySelectorAll(".key");
+    var i;
+    for(i = 0; i < alts.length; i++) {
+        if (alts[i].checked) {
+            answer = alts[i].value;
+            console.log(answer);
+        }
 
-
-
-
-
-
+    }
+};
 
 
 module.exports = Quiz;
