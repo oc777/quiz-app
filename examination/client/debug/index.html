@@ -3,6 +3,22 @@
     <title>Quiz</title>
     <link rel="stylesheet" href="./stylesheet/style.css"/>
     <link rel="icon" href="./image/favicon.png" />
+
+    <template id="end">
+        <p id="quizStatus"> </p>
+        <p id="quizScore"></p>
+        <p id="bestScores">
+        <h3>Best Scores</h3>
+
+        <ol>
+            <li>-</li>
+            <li>-</li>
+            <li>-</li>
+            <li>-</li>
+            <li>-</li>
+        </ol>
+        </p>
+    </template>
 </head>
 
 <body>
@@ -25,14 +41,6 @@
     </header>
 
     <div id="box">
-
-        <template id="answerN">
-            <input type="number" id="answerInput" />
-        </template>
-
-        <template id="answerR">
-            <input type="radio"  class="answerMultiple" />
-        </template>
 
         <h3>This is the world's hardest quiz =)</h3>
         <p id="status"></p>

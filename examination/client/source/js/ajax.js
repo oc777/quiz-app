@@ -1,5 +1,9 @@
 "use strict";
 
+/**
+ *
+ * NOT USED
+ */
 function Ajax() {}
 
 Ajax.prototype.aPost = function(url, callback, data) {

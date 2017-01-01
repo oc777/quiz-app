@@ -5,13 +5,21 @@ var Quiz = require("./quiz");
 var nickname = document.getElementById("nicknameInput");
 var submit = document.getElementById("submit");
 
+/**
+ * get the first question of the quiz
+ */
 function startQuiz() {
+    // remove nickname listener
     submit.removeEventListener("click", getNickname, true);
-    var q = new Quiz();
-    q.getQuestion();
+    // start quiz
+    new Quiz();
+    //q.getQuestion();
 }
 
-
+/**
+ * save nickname of current player in session storage
+ * and display it in the header of the page during the quiz
+ */
 function getNickname() {
 
     var name = nickname.value;
@@ -27,13 +35,6 @@ function getNickname() {
 
 }
 
+// listen for nickname submission
 submit.addEventListener("click", getNickname, true);
 
-
-
-
-
-/*
-var quiz = require("./quiz-t");
-quiz.playQuiz();
-*/
