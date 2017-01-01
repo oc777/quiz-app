@@ -6,6 +6,9 @@
 var tempEnd = document.getElementById("end");
 var end = document.importNode(tempEnd.content, true);
 
+
+
+
 // element that shows current question
 var question = document.getElementById("question");
 // div with all the action
@@ -14,6 +17,7 @@ var box = document.getElementById("box");
 var submit = document.getElementById("submit");
 // div for user input
 var input = document.getElementById("input");
+
 
 var url = "http://vhost3.lnu.se:20080/question/1";
 var options = false;
@@ -47,6 +51,9 @@ Quiz.prototype.getQuestion = function() {
             //manage server response
             var response = JSON.parse(request.responseText);
 
+            url = response.nextURL;
+
+            /*
             //????? TODO
             if (response.nextURL !== undefined) {
                 url = response.nextURL;
@@ -54,11 +61,12 @@ Quiz.prototype.getQuestion = function() {
             } else {
                 console.log("You won!");    //TODO gameover();
             }
+            */
 
             document.querySelector("#question").textContent = response.question;
             document.querySelector("#status").textContent = "";
 
-            Quiz.prototype.clearInputForm();
+            Quiz.prototype.clearIElement(input);
             Quiz.prototype.createInputForm(response);
 
         }
@@ -99,12 +107,14 @@ Quiz.prototype.postAnswer = function() {
             // the answer was wrong - user loses
             if (response.message === "Wrong answer! :(") {
                 console.log("You lost");     //TODO gameover()
+                Quiz.prototype.finish(false);
             }
             // the answer was correct
             else {
                 // this was the last the last question - user wins
                 if (response.nextURL === undefined) {
                     console.log("You won!");    //TODO gameover();
+                    Quiz.prototype.finish(true);
                 }
                 // get the next question
                 else {
@@ -156,12 +166,12 @@ Quiz.prototype.createInputForm = function(response) {
 
 
 /**
- * Removes all elements in input div
- * (text input field or radio buttons)
+ * Removes all elements inside another DOM element
+ * @param element - the Node to be cleared
  */
-Quiz.prototype.clearInputForm = function() {
-    while(input.firstChild) {
-        input.removeChild(input.firstChild);
+Quiz.prototype.clearIElement = function(element) {
+    while(element.firstChild) {
+        element.removeChild(element.firstChild);
     }
 };
 
@@ -178,6 +188,36 @@ Quiz.prototype.getAlt = function() {
             answer = alts[i].value;
         }
     }
+};
+
+
+
+Quiz.prototype.finish = function(winner) {
+    Quiz.prototype.clearIElement(box);
+    box.appendChild(end);
+
+    var quizStatus = document.getElementById("quizStatus");
+    var quizScore = document.getElementById("quizScore");
+    var bestScores = document.getElementById("bestScores");
+
+    //show status: win or loose
+    if(winner) {
+        quizStatus.textContent = "You win!!!";
+    } else {
+        quizStatus.textContent = "You loose :(";
+    }
+
+    //show total time TODO
+    quizScore.textContent = "time will be here";
+
+    //show five best
+    //TODO
+
+    //get the page layout
+
+
+
+
 };
 
 
