@@ -6,9 +6,6 @@
 // template for the end of the quiz
 var tempEnd = document.getElementById("end");
 var end = document.importNode(tempEnd.content, true);
-// top 5 list
-//var top = document.getElementById("top");
-
 
 // element that shows current question
 var question = document.getElementById("question");
@@ -32,7 +29,7 @@ var inputField;
  *
  * @constructor
  */
-function Quiz() {
+function Quiz(duration) {
     box.querySelector("h3").innerHTML = "Question:";
     submit.setAttribute("value", "Submit answer");
     submit.addEventListener("click", this.postAnswer.bind(this), true);
@@ -40,6 +37,7 @@ function Quiz() {
 
     this.interval = undefined;
     this.totalTime = 0;
+    this.duration = duration;
 
 }
 
@@ -49,7 +47,7 @@ function Quiz() {
  * response contains question, answer alternatives (optional) and the url to post the answer to
  */
 Quiz.prototype.getQuestion = function() {
-    this.startTimer(5);
+    this.startTimer(this.duration);
 
     var request = new XMLHttpRequest();
 
@@ -201,7 +199,6 @@ Quiz.prototype.finish = function(winner) {
     //get the elements
     var quizStatus = document.getElementById("quizStatus");
     var quizScore = document.getElementById("quizScore");
-    var bestScores = document.getElementById("bestScores");
 
     //show status: win or loose
     if(winner) {
@@ -217,26 +214,29 @@ Quiz.prototype.finish = function(winner) {
     //show top five scores
     this.showWinners();
 
-
-
 };
 
-
+/**
+ * Starts countdown with one second interval
+ * Keeps track of total time spent actually spent
+ * @param duration {number} max time for one question
+ */
 Quiz.prototype.startTimer = function(duration) {
     var time = duration;
 
     this.interval = setInterval(countdown.bind(this), 1000);
 
-
     function countdown() {
         this.totalTime++;
 
+        // show timer in the header
         if(time < 10) {
             timer.textContent = "0:0" + time;
         } else {
             timer.textContent = "0:" + time;
         }
 
+        // time elapsed - user looses
         if (time-- <= 0) {
             this.finish(false);
             this.stopTimer();
@@ -244,11 +244,18 @@ Quiz.prototype.startTimer = function(duration) {
     }
 };
 
+/**
+ * Stops the timer
+ */
 Quiz.prototype.stopTimer = function() {
     timer.textContent = "";
     clearInterval(this.interval);
 };
 
+/**
+ * Parses total time in seconds to time in minutes and seconds
+ * @returns {string}
+ */
 Quiz.prototype.getTotalTime = function() {
     var seconds = this.totalTime;
     //console.log(this.totalTime);
@@ -264,36 +271,46 @@ Quiz.prototype.getTotalTime = function() {
     return total;
 };
 
-
+/**
+ * Stores winner's info in Local Storage
+ * @param name {string} user nickname, provided in the beginning of session
+ * @param time {number} total time in seconds for this user
+ */
 Quiz.prototype.storeWinners = function(name, time) {
     var winner = {"name": name, "time": time};
     var winners = [];
 
+    // if some winners were already stored, get the list first
     if(localStorage.getItem("winners") !== null) {
         winners = JSON.parse(localStorage.getItem("winners"));
     }
+    // add current winner
     winners.push(winner);
+    // sort winners by time
     winners.sort(function(a,b){
         return a.time - b.time;
     });
+    // keep max 5 top scores
     if (winners.length > 5) {
         winners.pop();
     }
+    // store updated winners list
     var json = JSON.stringify(winners);
     localStorage.setItem("winners", json);
 };
 
+/**
+ * Displays the top five winners in list form
+ */
 Quiz.prototype.showWinners = function() {
     if(localStorage.getItem("winners") !== null) {
-        var json = JSON.parse(localStorage.getItem("winners"))
-        //var winners = json;
+        var json = JSON.parse(localStorage.getItem("winners"));
         for(var i = 0; i < json.length; i++) {
             var name = json[i].name;
             var time = json[i].time;
-            console.log("Name: "+name+"; Time: "+time);
 
             var ol = document.getElementById(i);
-            ol.innerHTML = name.toUpperCase() + " : " + time + " seconds";
+            ol.innerHTML = name + " : " + time + " seconds";
         }
     }
 };

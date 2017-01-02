@@ -1,20 +1,14 @@
 "use strict";
 
 var Quiz = require("./quiz");
-
+var questionDuration = 10;
 var nickname = document.getElementById("nicknameInput");
 var submit = document.getElementById("submit");
+var status = document.getElementById("status");
 
-/**
- * get the first question of the quiz
- */
-function startQuiz() {
-    // remove nickname listener
-    submit.removeEventListener("click", getNickname, true);
-    // start quiz
-    var quiz = new Quiz();
-    quiz.getQuestion();
-}
+
+status.innerHTML = "You will have "+ questionDuration + " seconds to answer each question.";
+//localStorage.clear();
 
 /**
  * save nickname of current player in session storage
@@ -26,14 +20,23 @@ function getNickname() {
 
     if (name !== null) {
         sessionStorage.setItem("name", name);
-        //var greet = document.getElementById("greet");
-        //var savedName = sessionStorage.getItem("name");
-        //greet.textContent = "Hallo " + savedName + "!";
         nickname.parentNode.removeChild(nickname);
         startQuiz();
     }
 
 }
+
+/**
+ * get the first question of the quiz
+ */
+function startQuiz() {
+    // remove nickname listener
+    submit.removeEventListener("click", getNickname, true);
+    // start quiz
+    var quiz = new Quiz(questionDuration);
+    quiz.getQuestion();
+}
+
 
 // listen for nickname submission
 submit.addEventListener("click", getNickname, true);
