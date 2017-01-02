@@ -8,42 +8,35 @@ function Timer(duration, display, quiz) {
     this.duration = duration;
     this.display = display;
     this.quiz = quiz;
-    this.total = 0;
+    this.totalTime = 0;
     this.interval = undefined;
 }
 
 Timer.prototype.start = function() {
-
-    //var that = this;
-    this.interval = setInterval(this.countdown.bind(this), 1000);
-
-    /*
+    this.interval = setInterval(countdown.bind(this), 1000);
+    var time = this.duration;
     function countdown() {
-        display.textContent = "0:" + time;
-        this.total++;
-        console.log(this.total);
-        if (time-- < 0) {
-            finish(false);
-            clearInterval(this.interval);
+        this.totalTime++;
+
+        // show timer in the header
+        if(time < 10) {
+            this.display.textContent = "0:0" + time;
+        } else {
+            this.display.textContent = "0:" + time;
+        }
+
+        // time elapsed - user looses
+        if (time-- <= 0) {
+            this.quiz.finish(false);
+            this.stopTimer();
         }
     }
-    */
 };
 
-Timer.prototype.countdown = function() {
-    var time = this.duration;
-    this.display.textContent = "0:" + time;
-    this.total++;
-    //console.log(this.total);
-
-    if (time-- < 0) {
-        this.quiz.finish(false);
-        clearInterval(this.interval);
-    }
-};
 
 Timer.prototype.stop = function () {
     clearInterval(this.interval);
+    this.display.textContent = "";
 };
 
 module.exports = Timer;

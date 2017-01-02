@@ -1,8 +1,5 @@
 "use strict";
 
-//var Ajax = require("./src/ajax");
-//var Timer = require("./timer");
-
 // template for the end of the quiz
 var tempEnd = document.getElementById("end");
 var end = document.importNode(tempEnd.content, true);
@@ -26,8 +23,8 @@ var answer;
 var inputField;
 
 /**
- *
  * @constructor
+ * @param duration {number} duration per one question
  */
 function Quiz(duration) {
     box.querySelector("h3").innerHTML = "Question:";
@@ -238,6 +235,7 @@ Quiz.prototype.startTimer = function(duration) {
 
         // time elapsed - user looses
         if (time-- <= 0) {
+            this.totalTime--;
             this.finish(false);
             this.stopTimer();
         }
