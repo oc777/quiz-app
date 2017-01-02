@@ -1,13 +1,11 @@
 "use strict";
 
 //var Ajax = require("./src/ajax");
+//var Timer = require("./timer");
 
 // template for the end of the quiz
 var tempEnd = document.getElementById("end");
 var end = document.importNode(tempEnd.content, true);
-
-
-
 
 // element that shows current question
 var question = document.getElementById("question");
@@ -17,6 +15,8 @@ var box = document.getElementById("box");
 var submit = document.getElementById("submit");
 // div for user input
 var input = document.getElementById("input");
+// div for countdown
+var timer = document.getElementById("timer");
 
 
 var url = "http://vhost3.lnu.se:20080/question/1";
@@ -31,9 +31,12 @@ var inputField;
 function Quiz() {
     box.querySelector("h3").innerHTML = "Question:";
     submit.setAttribute("value", "Submit answer");
-    submit.addEventListener("click", this.postAnswer, true);
-    this.getQuestion();
+    submit.addEventListener("click", this.postAnswer.bind(this), true);
     input.firstChild.remove();
+
+    this.interval = undefined;
+    this.totalTime = 0;
+
 }
 
 
@@ -42,10 +45,11 @@ function Quiz() {
  * response contains question, answer alternatives (optional) and the url to post the answer to
  */
 Quiz.prototype.getQuestion = function() {
+    this.startTimer(20);
 
     var request = new XMLHttpRequest();
 
-    request.onreadystatechange = function () {
+    request.onreadystatechange = function() {
 
         if (request.readyState === 4 && request.status === 200) {
             //manage server response
@@ -53,27 +57,17 @@ Quiz.prototype.getQuestion = function() {
 
             url = response.nextURL;
 
-            /*
-            //????? TODO
-            if (response.nextURL !== undefined) {
-                url = response.nextURL;
-
-            } else {
-                console.log("You won!");    //TODO gameover();
-            }
-            */
-
-            document.querySelector("#question").textContent = response.question;
+            question.textContent = response.question;
             document.querySelector("#status").textContent = "";
 
-            Quiz.prototype.clearIElement(input);
-            Quiz.prototype.createInputForm(response);
+            this.clearElement(input);
+            this.createInputForm(response);
 
         }
         else {
             document.querySelector("#status").textContent = "Waiting...";
         }
-    };
+    }.bind(this);
 
     request.open("GET", url, true);
     request.send();
@@ -89,11 +83,13 @@ Quiz.prototype.getQuestion = function() {
  */
 Quiz.prototype.postAnswer = function() {
 
+    this.stopTimer();
+
     var request = new XMLHttpRequest();
 
     // answer for multiple choice question
     if(options) {
-        Quiz.prototype.getAlt();
+        this.getAlt();
     }
     // answer for simple question
     else {
@@ -101,29 +97,27 @@ Quiz.prototype.postAnswer = function() {
     }
 
     request.onreadystatechange = function () {
-        if (request.readyState === 4 ) {
+        if (request.readyState === 4) {
             var response = JSON.parse(request.responseText);
 
             // the answer was wrong - user loses
             if (response.message === "Wrong answer! :(") {
-                console.log("You lost");     //TODO gameover()
-                Quiz.prototype.finish(false);
+                this.finish(false).bind(this);
             }
             // the answer was correct
             else {
-                // this was the last the last question - user wins
+                // this was the last question - user wins
                 if (response.nextURL === undefined) {
-                    console.log("You won!");    //TODO gameover();
-                    Quiz.prototype.finish(true);
+                    this.finish(true).bind(this);
                 }
                 // get the next question
                 else {
                     url = response.nextURL;
-                    Quiz.prototype.getQuestion();
+                    this.getQuestion();
                 }
             }
         }
-    };
+    }.bind(this);
 
     request.open("POST", url, true);
     request.setRequestHeader("Content-type", "application/json");
@@ -169,7 +163,7 @@ Quiz.prototype.createInputForm = function(response) {
  * Removes all elements inside another DOM element
  * @param element - the Node to be cleared
  */
-Quiz.prototype.clearIElement = function(element) {
+Quiz.prototype.clearElement = function(element) {
     while(element.firstChild) {
         element.removeChild(element.firstChild);
     }
@@ -191,11 +185,16 @@ Quiz.prototype.getAlt = function() {
 };
 
 
-
+/**
+ * Shows the status for the current game
+ * @param winner {boolean}
+ */
 Quiz.prototype.finish = function(winner) {
-    Quiz.prototype.clearIElement(box);
+    //get the page layout
+    this.clearElement(box);
     box.appendChild(end);
 
+    //get the elements
     var quizStatus = document.getElementById("quizStatus");
     var quizScore = document.getElementById("quizScore");
     var bestScores = document.getElementById("bestScores");
@@ -207,18 +206,59 @@ Quiz.prototype.finish = function(winner) {
         quizStatus.textContent = "You loose :(";
     }
 
-    //show total time TODO
-    quizScore.textContent = "time will be here";
+    quizScore.textContent = this.getTotalTime();
 
     //show five best
     //TODO
 
-    //get the page layout
+
 
 
 
 
 };
 
+
+Quiz.prototype.startTimer = function(duration) {
+    var time = duration;
+
+    this.interval = setInterval(countdown.bind(this), 1000);
+
+
+    function countdown() {
+        this.totalTime++;
+
+        if(time < 10) {
+            timer.textContent = "0:0" + time;
+        } else {
+            timer.textContent = "0:" + time;
+        }
+
+        if (time-- <= 0) {
+            this.finish(false);
+            this.stopTimer();
+        }
+    }
+};
+
+Quiz.prototype.stopTimer = function() {
+    timer.textContent = "";
+    clearInterval(this.interval);
+};
+
+Quiz.prototype.getTotalTime = function() {
+    var seconds = this.totalTime;
+    console.log(this.totalTime);
+
+    var total = "";
+    if (seconds >= 60) {
+        var min = seconds%60;
+        var sec = seconds - 60*min;
+        total += min + " minutes and " + sec;
+    } else {
+        total += seconds + " seconds";
+    }
+    return total;
+};
 
 module.exports = Quiz;

@@ -12,8 +12,8 @@ function startQuiz() {
     // remove nickname listener
     submit.removeEventListener("click", getNickname, true);
     // start quiz
-    new Quiz();
-    //q.getQuestion();
+    var quiz = new Quiz();
+    quiz.getQuestion();
 }
 
 /**
@@ -26,9 +26,9 @@ function getNickname() {
 
     if (name !== null) {
         sessionStorage.setItem("name", name);
-        var greet = document.getElementById("greet");
-        var savedName = sessionStorage.getItem("name");
-        greet.textContent = "Hallo " + savedName + "!";
+        //var greet = document.getElementById("greet");
+        //var savedName = sessionStorage.getItem("name");
+        //greet.textContent = "Hallo " + savedName + "!";
         nickname.parentNode.removeChild(nickname);
         startQuiz();
     }
