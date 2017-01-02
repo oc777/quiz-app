@@ -25,22 +25,34 @@ function storeNickname() {
 }
 
 
-function storeWinners() {
-    localStorage.setItem("winner1name", "name");
-    localStorage.setItem("winner1time", "time");
+function storeWinner(name, time) {
+    var winner = {"name": name, "time": time};
+    var winners = [];
 
-    localStorage.setItem("winner2name", "name");
-    localStorage.setItem("winner2time", "time");
+    if(localStorage.getItem("winners") !== null) {
+        winners = JSON.parse(localStorage.getItem("winners"));
+    }
+    winners.push(winner);
+    winners.sort(function(a,b){
+        return a.time - b.time;
+    });
+    if (winners.length > 5) {
+        winners.pop();
+    }
+    var json = JSON.stringify(winners);
+    localStorage.setItem("winners", json);
+}
 
-    localStorage.setItem("winner3name", "name");
-    localStorage.setItem("winner3time", "time");
-
-    localStorage.setItem("winner4name", "name");
-    localStorage.setItem("winner4time", "time");
-
-    localStorage.setItem("winner5name", "name");
-    localStorage.setItem("winner5time", "time");
-
+function showWinners() {
+    if(localStorage.getItem("winners") !== null) {
+        var json = JSON.parse(localStorage.getItem("winners"))
+        //var winners = json;
+        for(var i = 0; i < json.length; i++) {
+            var name = json[i].name;
+            var time = json[i].time;
+            console.log("Name: "+name+"; Time: "+time);
+        }
+    }
 }
 
 
@@ -49,15 +61,3 @@ module.exports = {
     winners: storeWinners
 };
 
-/*
-var winner = {
-    name: name,
-    score: score
-}
-
-localStorage.winner = JSON.stringify(winner);
-
-var winnerObj = JSON.parse(localStorage.winner);
-
-console.log(winnerObj.name + " won in " + winnerObj.score);
- */

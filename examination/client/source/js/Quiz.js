@@ -6,6 +6,9 @@
 // template for the end of the quiz
 var tempEnd = document.getElementById("end");
 var end = document.importNode(tempEnd.content, true);
+// top 5 list
+//var top = document.getElementById("top");
+
 
 // element that shows current question
 var question = document.getElementById("question");
@@ -17,6 +20,7 @@ var submit = document.getElementById("submit");
 var input = document.getElementById("input");
 // div for countdown
 var timer = document.getElementById("timer");
+
 
 
 var url = "http://vhost3.lnu.se:20080/question/1";
@@ -45,7 +49,7 @@ function Quiz() {
  * response contains question, answer alternatives (optional) and the url to post the answer to
  */
 Quiz.prototype.getQuestion = function() {
-    this.startTimer(20);
+    this.startTimer(5);
 
     var request = new XMLHttpRequest();
 
@@ -108,7 +112,7 @@ Quiz.prototype.postAnswer = function() {
             else {
                 // this was the last question - user wins
                 if (response.nextURL === undefined) {
-                    this.finish(true).bind(this);
+                    this.finish(true);
                 }
                 // get the next question
                 else {
@@ -202,17 +206,16 @@ Quiz.prototype.finish = function(winner) {
     //show status: win or loose
     if(winner) {
         quizStatus.textContent = "You win!!!";
+        var nickname = sessionStorage.getItem("name");
+        this.storeWinners(nickname, this.totalTime);
     } else {
         quizStatus.textContent = "You loose :(";
     }
 
-    quizScore.textContent = this.getTotalTime();
+    quizScore.textContent = "Your total time: " + this.getTotalTime();
 
-    //show five best
-    //TODO
-
-
-
+    //show top five scores
+    this.showWinners();
 
 
 
@@ -248,7 +251,7 @@ Quiz.prototype.stopTimer = function() {
 
 Quiz.prototype.getTotalTime = function() {
     var seconds = this.totalTime;
-    console.log(this.totalTime);
+    //console.log(this.totalTime);
 
     var total = "";
     if (seconds >= 60) {
@@ -260,5 +263,40 @@ Quiz.prototype.getTotalTime = function() {
     }
     return total;
 };
+
+
+Quiz.prototype.storeWinners = function(name, time) {
+    var winner = {"name": name, "time": time};
+    var winners = [];
+
+    if(localStorage.getItem("winners") !== null) {
+        winners = JSON.parse(localStorage.getItem("winners"));
+    }
+    winners.push(winner);
+    winners.sort(function(a,b){
+        return a.time - b.time;
+    });
+    if (winners.length > 5) {
+        winners.pop();
+    }
+    var json = JSON.stringify(winners);
+    localStorage.setItem("winners", json);
+};
+
+Quiz.prototype.showWinners = function() {
+    if(localStorage.getItem("winners") !== null) {
+        var json = JSON.parse(localStorage.getItem("winners"))
+        //var winners = json;
+        for(var i = 0; i < json.length; i++) {
+            var name = json[i].name;
+            var time = json[i].time;
+            console.log("Name: "+name+"; Time: "+time);
+
+            var ol = document.getElementById(i);
+            ol.innerHTML = name.toUpperCase() + " : " + time + " seconds";
+        }
+    }
+};
+
 
 module.exports = Quiz;

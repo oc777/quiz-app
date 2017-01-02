@@ -10,7 +10,7 @@ header {height: 15%; background-color: darkgray; border-radius: 10px; padding: 2
 #left {float: left; padding-left: 30px}
 #right {float: right; padding-right: 30px}
 #timer {color: red; }
-
+#top {display: inline-block; text-align: left}
 #box {height: 50%; background-color: lightgray; border-radius: 10px; padding: 20px; margin-top: 2%}
 
 .button {padding: 15px}
