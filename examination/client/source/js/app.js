@@ -1,7 +1,10 @@
 "use strict";
 
 var Quiz = require("./quiz");
-var questionDuration = 10;
+
+// the duration of each question in seconds
+var questionDuration = 20;
+
 var nickname = document.getElementById("nicknameInput");
 var submit = document.getElementById("submit");
 var status = document.getElementById("status");
